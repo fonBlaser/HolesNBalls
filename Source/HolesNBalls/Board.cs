@@ -66,17 +66,7 @@ public record Board
             //Update missed balls positions
             if (lineMissedBalls.Any())
             {
-                int moveAxisLength = GetMoveAxisLength(direction);
-                int stackLength = lineMissedBalls.Count;
-                bool isDirectionToAxisEnd = IsDirectionToAxisEnd(direction);
-                int offset = isDirectionToAxisEnd ? moveAxisLength - stackLength : 0;
-
-                Func<Ball, int, Ball> moveAxisUpdater = GetMoveAxisUpdater(direction, offset);
-
-                lineMissedBalls = lineMissedBalls.OrderBy(moveAxisSelector)
-                                                 .Cast<Ball>()
-                                                 .Select(moveAxisUpdater).ToList();
-
+                lineMissedBalls = UpdateBallLinePositions(direction, lineMissedBalls, moveAxisSelector);
                 missedBalls.AddRange(lineMissedBalls);
             }
         }
@@ -86,6 +76,21 @@ public record Board
             Balls = missedBalls,
             Drops = Drops.Union(currentDrops).ToArray(),
         };
+    }
+
+    private List<Ball> UpdateBallLinePositions(MoveDirection direction, List<Ball> lineMissedBalls, Func<BoardObject, int> moveAxisSelector)
+    {
+        int moveAxisLength = GetMoveAxisLength(direction);
+        int stackLength = lineMissedBalls.Count;
+        bool isDirectionToAxisEnd = IsDirectionToAxisEnd(direction);
+        int offset = isDirectionToAxisEnd ? moveAxisLength - stackLength : 0;
+
+        Func<Ball, int, Ball> moveAxisUpdater = GetMoveAxisUpdater(direction, offset);
+
+        return lineMissedBalls.OrderBy(moveAxisSelector)
+                              .Cast<Ball>()
+                              .Select(moveAxisUpdater)
+                              .ToList();
     }
 
     private int GetMoveAxisLength(MoveDirection direction)
