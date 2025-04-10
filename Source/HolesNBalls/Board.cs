@@ -26,9 +26,6 @@ public record Board
         IGrouping<int, Ball>[] ballLines = GroupByAxis<Ball>(Balls, nonMoveAxisSelector);
         IGrouping<int, Hole>[] holeLines = GroupByAxis<Hole>(Holes, nonMoveAxisSelector);
 
-        Func<Ball, Hole, bool> directionMatches = GetDirectionMatchFilter(direction);
-        Func<BoardObject, BoardObject, int> calculateDistance = GetDistanceCalculator(direction);
-
         foreach (int line in ballLines.Select(l => l.Key))
         {
             List<Ball> lineMissedBalls = new();
@@ -37,22 +34,8 @@ public record Board
 
             foreach (Ball ball in ballLine)
             {
-                Hole? nearestHole = null;
-                int nearestDistance = 0;
-
-                foreach (Hole hole in holeLine)
-                {
-                    if (directionMatches(ball, hole))
-                    {
-                        int currentDistance = calculateDistance(ball, hole);
-                        if (nearestHole == null || currentDistance < nearestDistance)
-                        {
-                            nearestHole = hole;
-                            nearestDistance = currentDistance;
-                        }
-                    }
-                }
-
+                Hole? nearestHole = GetNearestHoleForBallByDirection(ball, holeLine, direction);
+                
                 if (nearestHole == null)
                 {
                     lineMissedBalls.Add(ball);
@@ -91,6 +74,33 @@ public record Board
                               .Cast<Ball>()
                               .Select(moveAxisUpdater)
                               .ToList();
+    }
+
+    private Hole? GetNearestHoleForBallByDirection(Ball ball, Hole[] holeLine, MoveDirection direction)
+    {
+        if(!holeLine.Any())
+            return null;
+
+        Func<Ball, Hole, bool> directionMatches = GetDirectionMatchFilter(direction);
+        Func<BoardObject, BoardObject, int> calculateDistance = GetDistanceCalculator(direction);
+
+        Hole? nearestHole = null;
+        int nearestDistance = 0;
+
+        foreach (Hole hole in holeLine)
+        {
+            if (directionMatches(ball, hole))
+            {
+                int currentDistance = calculateDistance(ball, hole);
+                if (nearestHole == null || currentDistance < nearestDistance)
+                {
+                    nearestHole = hole;
+                    nearestDistance = currentDistance;
+                }
+            }
+        }
+
+        return nearestHole;
     }
 
     private int GetMoveAxisLength(MoveDirection direction)
