@@ -1,6 +1,6 @@
 ﻿namespace HolesNBalls;
 
-public record BoardObject
+public abstract record BoardObject
 {
     public required int Number { get; init; }
     public required int X { get; init; }
