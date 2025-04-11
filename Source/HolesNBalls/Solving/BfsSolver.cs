@@ -74,7 +74,7 @@ public class BfsSolver
 
     private Turn CreateTurn(Board board, Direction? direction, Turn? previousTurn)
     {
-        if(previousTurn != null && direction == null)
+        if (previousTurn != null && direction == null)
             throw new ArgumentException("Direction cannot be null if previousTurn is not null.");
 
         BoardState state = GetBoardState(board);

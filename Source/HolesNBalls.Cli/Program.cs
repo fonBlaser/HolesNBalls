@@ -86,7 +86,9 @@ Coordinates AskBoardWidthAndHeight(BoardValidator validator)
         {
             Console.Write("Board width and height: ");
             Coordinates coordinates = WaitForCoordinates();
+
             validator.ValidateDimensions(coordinates.X, coordinates.Y);
+
             return coordinates;
         }
         catch (BoardValidationException ex)
@@ -104,8 +106,10 @@ int AskHolesAmount()
         {
             Console.Write("Holes amount: ");
             int holesAmount = WaitForInt();
+
             if (holesAmount < 1)
                 throw new BoardValidationException("Holes amount should be greater than 0.");
+
             return holesAmount;
         }
         catch (BoardValidationException ex)
@@ -123,10 +127,13 @@ int AskBallsAmount(int holesAmount)
         {
             Console.Write("Balls amount: ");
             int ballsAmount = WaitForInt();
+
             if (ballsAmount < 1)
                 throw new BoardValidationException("Balls amount should be greater than 0.");
+
             if (ballsAmount > holesAmount)
                 throw new BoardValidationException("Balls amount should be less or equal to Holes amount.");
+
             return ballsAmount;
         }
         catch (BoardValidationException ex)
@@ -147,6 +154,7 @@ List<Hole> AskHolePositions(int holesAmount, Coordinates boardDimensions, BoardV
             {
                 Console.Write($"Hole {i + 1} coordinates: ");
                 Coordinates coordinates = WaitForCoordinates();
+
                 validator.ValidateCoordinatesBounds(coordinates, boardDimensions.X, boardDimensions.Y, nameof(Hole));
                 
                 Hole? existingHole = holes.FirstOrDefault(h => h.X == coordinates.X && h.Y == coordinates.Y);
@@ -176,6 +184,7 @@ List<Ball> AskBallPositions(int ballsAmount, List<Hole> holes, Coordinates board
             {
                 Console.Write($"Ball {i + 1} coordinates: ");
                 Coordinates coordinates = WaitForCoordinates();
+
                 validator.ValidateCoordinatesBounds(coordinates, boardDimensions.X, boardDimensions.Y, nameof(Ball));
 
                 Hole? existingHole = holes.FirstOrDefault(h => h.X == coordinates.X && h.Y == coordinates.Y);
@@ -206,8 +215,10 @@ BfsSolutionMode AskForSolutionMode()
         {
             Console.Write("Solution mode (1 - first win, 2 - same depth wins, 3 - all wins, 4 - all wins and loses): ");
             int mode = WaitForInt();
+
             if (mode < 1 || mode > 4)
                 throw new BoardValidationException("Invalid solution mode. Choose from 1 to 4.");
+
             return (BfsSolutionMode)mode;
         }
         catch (BoardValidationException ex)

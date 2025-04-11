@@ -7,7 +7,7 @@ namespace HolesNBalls;
 /// </summary>
 public record Board
 {
-    private Dictionary<Direction, bool> _ballsAlignment = [];
+    private Dictionary<Direction, bool> BallsAlignment { get; init; } = [];
 
     public required int Width { get; init; }
     public required int Height { get; init; }
@@ -42,7 +42,7 @@ public record Board
             foreach (Ball ball in ballLine)
             {
                 Hole? nearestHole = GetNearestHoleForBallByDirection(ball, holeLine, direction);
-                
+
                 if (nearestHole == null)
                 {
                     lineMissedBalls.Add(ball);
@@ -61,30 +61,30 @@ public record Board
             }
         }
 
-        Dictionary<Direction, bool> updatedAlignments = new Dictionary<Direction, bool>(_ballsAlignment)
-            {
-                [direction] = true,
-                [direction.GetOpposite()] = false
-            };
+        Dictionary<Direction, bool> updatedAlignments = new Dictionary<Direction, bool>(BallsAlignment)
+        {
+            [direction] = true,
+            [direction.GetOpposite()] = false
+        };
 
         return this with
         {
             Balls = missedBalls,
             Drops = Drops.Union(currentDrops).ToArray(),
-            _ballsAlignment = updatedAlignments
+            BallsAlignment = updatedAlignments
         };
     }
 
     public bool AreBallsAlignedTo(Direction direction)
     {
-        if(_ballsAlignment.TryGetValue(direction, out bool aligned))
+        if (BallsAlignment.TryGetValue(direction, out bool aligned))
             return aligned;
 
         aligned = true;
 
         Func<BoardObject, int> moveAxisSelector = GetMoveAxisSelector(direction);
         Func<BoardObject, int> nonMoveAxisSelector = GetNonMoveAxisSelector(direction);
-        
+
 
         IGrouping<int, Ball>[] ballLines = GroupByAxis<Ball>(Balls, nonMoveAxisSelector);
 
@@ -106,7 +106,7 @@ public record Board
                 break;
         }
 
-        _ballsAlignment.Add(direction, aligned);
+        BallsAlignment.Add(direction, aligned);
 
         return aligned;
     }
@@ -128,7 +128,7 @@ public record Board
 
     private Hole? GetNearestHoleForBallByDirection(Ball ball, Hole[] holes, Direction direction)
     {
-        if(!holes.Any())
+        if (!holes.Any())
             return null;
 
         Func<Ball, Hole, bool> directionMatches = GetDirectionMatchFilter(direction);
@@ -176,8 +176,8 @@ public record Board
     private static IGrouping<int, TObject>[] GroupByAxis<TObject>(IEnumerable<TObject> collection, Func<TObject, int> axisSelector) 
         where TObject : BoardObject
         => collection.GroupBy(axisSelector)
-            .OrderBy(g => g.Key)
-            .ToArray();
+                     .OrderBy(g => g.Key)
+                     .ToArray();
 
     private static Func<BoardObject, int> GetMoveAxisSelector(Direction direction)
         => direction switch
@@ -228,7 +228,7 @@ public record Board
             Direction.Right => (from, to) => to.X - from.X,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
-    
+
 
     private static TObject[] GetLine<TObject>(IGrouping<int, TObject>[] grouping, int line, Func<TObject, int> orderSelector)
         where TObject : BoardObject
@@ -236,7 +236,7 @@ public record Board
         IGrouping<int, TObject>? lineObjects = grouping.FirstOrDefault(g => g.Key == line);
 
         if (lineObjects == null)
-            return Array.Empty<TObject>();
+            return [];
 
         return lineObjects.OrderBy(orderSelector).ToArray();
     }
