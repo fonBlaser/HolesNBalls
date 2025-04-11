@@ -1,6 +1,6 @@
 namespace HolesNBalls.Tests.Unit._TestData;
 
-public static class Boards
+public static class BoardsForMoveTests
 {
     public static Board SimpleBoard_3x3_HoleLeftTop_BallCenter =>
         new()

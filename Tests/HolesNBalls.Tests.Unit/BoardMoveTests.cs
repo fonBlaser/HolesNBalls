@@ -6,7 +6,7 @@ public class BoardMoveTests
     [Fact]
     public void BoardDropsAndTurnDrops_ByDefault_AreEmpty()
     {
-        Board board = _TestData.Boards.SimpleBoard_3x3_HoleLeftTop_BallCenter;
+        Board board = _TestData.BoardsForMoveTests.SimpleBoard_3x3_HoleLeftTop_BallCenter;
 
         Assert.Empty(board.Drops);
     }
@@ -18,7 +18,7 @@ public class BoardMoveTests
     [InlineData(MoveDirection.Right, 2, 1)]
     public void BoardWithOneBallCenter_Move_UpdatesBallPosition(MoveDirection direction, int updatedX, int updatedY)
     {
-        Board board = _TestData.Boards.SimpleBoard_3x3_HoleLeftTop_BallCenter;
+        Board board = _TestData.BoardsForMoveTests.SimpleBoard_3x3_HoleLeftTop_BallCenter;
         Ball sourceBall = board.Balls.Single();
 
         Board updatedBoard = board.Move(direction);
@@ -34,7 +34,7 @@ public class BoardMoveTests
     [Fact]
     public void BoardWithOneBallCenterOneHoleTopLeft_MoveTopThenLeft_HasDropAndNoBalls()
     {
-        Board board = _TestData.Boards.SimpleBoard_3x3_HoleLeftTop_BallCenter;
+        Board board = _TestData.BoardsForMoveTests.SimpleBoard_3x3_HoleLeftTop_BallCenter;
         Ball sourceBall = board.Balls.Single();
 
         Board updatedBoard = board.Move(MoveDirection.Top).Move(MoveDirection.Left);
@@ -58,7 +58,7 @@ public class BoardMoveTests
     public void Board7x7With9BallsWithSpaces_WithinTwoMoves_HasBallsStack3x3InCorner(MoveDirection first,
         MoveDirection second, int minX, int maxX, int minY, int maxY)
     {
-        Board board = _TestData.Boards.Board_7x7_With9BallsWithSpaces_WithoutHoles;
+        Board board = _TestData.BoardsForMoveTests.Board_7x7_With9BallsWithSpaces_WithoutHoles;
         int ballsCount = board.Balls.Count;
 
         Board updatedBoard = board.Move(first).Move(second);
@@ -77,7 +77,7 @@ public class BoardMoveTests
     [Fact]
     public void Board3x5With4BallsWithHolesAnd1FreeBall_WithinTwoMoves_HasSubsequentDrops()
     {
-        Board board = _TestData.Boards.Board_3x5_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
+        Board board = _TestData.BoardsForMoveTests.Board_3x5_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
 
         Ball leftTopBall = board.Balls.Single(b => b is { X: 0, Y: 1 });
         Ball rightTopBall = board.Balls.Single(b => b is { X: 2, Y: 1 });
@@ -134,7 +134,7 @@ public class BoardMoveTests
     [Fact]
     public void Board5x3With4BallsWithHolesAnd1FreeBall_WithinTwoMoves_HasSubsequentDrops()
     {
-        Board board = _TestData.Boards.Board_5x3_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
+        Board board = _TestData.BoardsForMoveTests.Board_5x3_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
         
         Ball leftTopBall = board.Balls.Single(b => b is { X: 1, Y: 0 });
         Ball rightTopBall = board.Balls.Single(b => b is { X: 3, Y: 0 });
@@ -191,7 +191,7 @@ public class BoardMoveTests
     [Fact]
     public void BoardWithVerticalOrientationAndFreeBallInMiddle_WithingFourMoves_HasAllDropsAndNoBalls()
     {
-        Board board = _TestData.Boards.Board_3x5_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
+        Board board = _TestData.BoardsForMoveTests.Board_3x5_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
 
         Board resultBoard = board.Move(MoveDirection.Top)
                                  .Move(MoveDirection.Bottom)
@@ -207,7 +207,7 @@ public class BoardMoveTests
     [Fact]
     public void BoardWithHorizontalOrientationAndFreeBallInMiddle_WithingFourMoves_HasAllDropsAndNoBalls()
     {
-        Board board = _TestData.Boards.Board_5x3_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
+        Board board = _TestData.BoardsForMoveTests.Board_5x3_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
 
         Board resultBoard = board.Move(MoveDirection.Left)
                                  .Move(MoveDirection.Right)
