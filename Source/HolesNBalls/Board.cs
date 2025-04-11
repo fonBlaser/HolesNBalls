@@ -1,7 +1,14 @@
-﻿namespace HolesNBalls;
+﻿using HolesNBalls.Extensions;
 
+namespace HolesNBalls;
+
+/// <summary>
+/// Represents the game board.
+/// </summary>
 public record Board
 {
+    private Dictionary<Direction, bool> _ballsAlignment = [];
+
     public required int Width { get; init; }
     public required int Height { get; init; }
     
@@ -11,11 +18,11 @@ public record Board
     public IReadOnlyCollection<Drop> Drops { get; init; } = [];
 
     /// <summary>
-    /// Turns board to top and moves balls to right direction.
-    /// If ball meets a hole, the Drop is added to TurnDrops.
+    /// Turns board and moves balls to right direction.
+    /// If ball meets a hole, the Drop is added to Drops.
     /// </summary>
     /// <returns>New instance of the board with the updated drops and bal positions.</returns>
-    public Board Move(MoveDirection direction)
+    public Board Move(Direction direction)
     {
         List<Drop> currentDrops = new();
         List<Ball> missedBalls = new();
@@ -54,14 +61,57 @@ public record Board
             }
         }
 
+        Dictionary<Direction, bool> updatedAlignments = new Dictionary<Direction, bool>(_ballsAlignment)
+            {
+                [direction] = true,
+                [direction.GetOpposite()] = false
+            };
+
         return this with
         {
             Balls = missedBalls,
             Drops = Drops.Union(currentDrops).ToArray(),
+            _ballsAlignment = updatedAlignments
         };
     }
 
-    private List<Ball> UpdateBallLinePositions(MoveDirection direction, List<Ball> lineMissedBalls, Func<BoardObject, int> moveAxisSelector)
+    public bool AreBallsAlignedTo(Direction direction)
+    {
+        if(_ballsAlignment.TryGetValue(direction, out bool aligned))
+            return aligned;
+
+        aligned = true;
+
+        Func<BoardObject, int> moveAxisSelector = GetMoveAxisSelector(direction);
+        Func<BoardObject, int> nonMoveAxisSelector = GetNonMoveAxisSelector(direction);
+        
+
+        IGrouping<int, Ball>[] ballLines = GroupByAxis<Ball>(Balls, nonMoveAxisSelector);
+
+        foreach (int line in ballLines.Select(l => l.Key))
+        {
+            Ball[] ballLine = GetLine<Ball>(ballLines, line, moveAxisSelector);
+
+            if (ballLine.Length == 0)
+                continue;
+
+            int stackLength = ballLine.Length;
+            int moveAxisLength = GetMoveAxisLength(direction);
+
+            aligned = IsDirectionToAxisEnd(direction)
+                    ? moveAxisSelector(ballLine.First()) == moveAxisLength - stackLength
+                    : moveAxisSelector(ballLine.Last()) == stackLength - 1;
+
+            if (!aligned)
+                break;
+        }
+
+        _ballsAlignment.Add(direction, aligned);
+
+        return aligned;
+    }
+
+    private List<Ball> UpdateBallLinePositions(Direction direction, List<Ball> lineMissedBalls, Func<BoardObject, int> moveAxisSelector)
     {
         int moveAxisLength = GetMoveAxisLength(direction);
         int stackLength = lineMissedBalls.Count;
@@ -76,9 +126,9 @@ public record Board
                               .ToList();
     }
 
-    private Hole? GetNearestHoleForBallByDirection(Ball ball, Hole[] holeLine, MoveDirection direction)
+    private Hole? GetNearestHoleForBallByDirection(Ball ball, Hole[] holes, Direction direction)
     {
-        if(!holeLine.Any())
+        if(!holes.Any())
             return null;
 
         Func<Ball, Hole, bool> directionMatches = GetDirectionMatchFilter(direction);
@@ -87,7 +137,7 @@ public record Board
         Hole? nearestHole = null;
         int nearestDistance = 0;
 
-        foreach (Hole hole in holeLine)
+        foreach (Hole hole in holes)
         {
             if (directionMatches(ball, hole))
             {
@@ -103,23 +153,23 @@ public record Board
         return nearestHole;
     }
 
-    private int GetMoveAxisLength(MoveDirection direction)
+    private int GetMoveAxisLength(Direction direction)
         => direction switch
         {
-            MoveDirection.Top => Height,
-            MoveDirection.Bottom => Height,
-            MoveDirection.Left => Width,
-            MoveDirection.Right => Width,
+            Direction.Top => Height,
+            Direction.Bottom => Height,
+            Direction.Left => Width,
+            Direction.Right => Width,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
 
-    private bool IsDirectionToAxisEnd(MoveDirection direction)
+    private bool IsDirectionToAxisEnd(Direction direction)
         => direction switch
         {
-            MoveDirection.Top => false,
-            MoveDirection.Bottom => true,
-            MoveDirection.Left => false,
-            MoveDirection.Right => true,
+            Direction.Top => false,
+            Direction.Bottom => true,
+            Direction.Left => false,
+            Direction.Right => true,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
 
@@ -129,55 +179,56 @@ public record Board
             .OrderBy(g => g.Key)
             .ToArray();
 
-    private static Func<BoardObject, int> GetMoveAxisSelector(MoveDirection direction)
+    private static Func<BoardObject, int> GetMoveAxisSelector(Direction direction)
         => direction switch
         {
-            MoveDirection.Top => obj => obj.Y,
-            MoveDirection.Bottom => obj => obj.Y,
-            MoveDirection.Left => obj => obj.X,
-            MoveDirection.Right => obj => obj.X,
+            Direction.Top => obj => obj.Y,
+            Direction.Bottom => obj => obj.Y,
+            Direction.Left => obj => obj.X,
+            Direction.Right => obj => obj.X,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
 
-    private static Func<BoardObject, int> GetNonMoveAxisSelector(MoveDirection direction)
+    private static Func<BoardObject, int> GetNonMoveAxisSelector(Direction direction)
         => direction switch
         {
-            MoveDirection.Top => obj => obj.X,
-            MoveDirection.Bottom => obj => obj.X,
-            MoveDirection.Left => obj => obj.Y,
-            MoveDirection.Right => obj => obj.Y,
+            Direction.Top => obj => obj.X,
+            Direction.Bottom => obj => obj.X,
+            Direction.Left => obj => obj.Y,
+            Direction.Right => obj => obj.Y,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
 
-    private static Func<Ball, int, Ball> GetMoveAxisUpdater(MoveDirection direction, int offset)
+    private static Func<Ball, int, Ball> GetMoveAxisUpdater(Direction direction, int offset)
         => direction switch
         {
-            MoveDirection.Top => (ball, index) => ball with { Y = index + offset },
-            MoveDirection.Bottom => (ball, index) => ball with { Y = index + offset },
-            MoveDirection.Left => (ball, index) => ball with { X = index + offset },
-            MoveDirection.Right => (ball, index) => ball with { X = index + offset },
+            Direction.Top => (ball, index) => ball with { Y = index + offset },
+            Direction.Bottom => (ball, index) => ball with { Y = index + offset },
+            Direction.Left => (ball, index) => ball with { X = index + offset },
+            Direction.Right => (ball, index) => ball with { X = index + offset },
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
 
-    private static Func<BoardObject, BoardObject, bool> GetDirectionMatchFilter(MoveDirection direction)
+    private static Func<BoardObject, BoardObject, bool> GetDirectionMatchFilter(Direction direction)
         => direction switch
         {
-            MoveDirection.Top => (from, to) => from.X == to.X && from.Y > to.Y,
-            MoveDirection.Bottom => (from, to) => from.X == to.X && from.Y < to.Y,
-            MoveDirection.Left => (from, to) => from.Y == to.Y && from.X > to.X,
-            MoveDirection.Right => (from, to) => from.Y == to.Y && from.X < to.X,
+            Direction.Top => (from, to) => from.X == to.X && from.Y > to.Y,
+            Direction.Bottom => (from, to) => from.X == to.X && from.Y < to.Y,
+            Direction.Left => (from, to) => from.Y == to.Y && from.X > to.X,
+            Direction.Right => (from, to) => from.Y == to.Y && from.X < to.X,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
 
-    private static Func<BoardObject, BoardObject, int> GetDistanceCalculator(MoveDirection direction)
+    private static Func<BoardObject, BoardObject, int> GetDistanceCalculator(Direction direction)
         => direction switch
         {
-            MoveDirection.Top => (from, to) => from.Y - to.Y,
-            MoveDirection.Bottom => (from, to) => to.Y - from.Y,
-            MoveDirection.Left => (from, to) => from.X - to.X,
-            MoveDirection.Right => (from, to) => to.X - from.X,
+            Direction.Top => (from, to) => from.Y - to.Y,
+            Direction.Bottom => (from, to) => to.Y - from.Y,
+            Direction.Left => (from, to) => from.X - to.X,
+            Direction.Right => (from, to) => to.X - from.X,
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
         };
+    
 
     private static TObject[] GetLine<TObject>(IGrouping<int, TObject>[] grouping, int line, Func<TObject, int> orderSelector)
         where TObject : BoardObject

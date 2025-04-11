@@ -1,31 +1,86 @@
-﻿using HolesNBalls.Validation;
+﻿using HolesNBalls.Extensions;
+using HolesNBalls.Validation;
 
 namespace HolesNBalls.Solving;
 
+/// <summary>
+/// Solves the board using the Breadth-first search algorithm.
+/// </summary>
 public class BfsSolver
 {
-    private List<Turn> _topTurns = null;
-
     public Turn InitialTurn { get; }
-    public IReadOnlyCollection<Turn> TopDepthTurns => _topTurns;
 
     public BfsSolver(Board board)
     {
         new BoardValidator().ValidateBoard(board);
-        InitialTurn = CreateTurn(board);
-        _topTurns = [InitialTurn];
+        InitialTurn = CreateTurn(board, direction: null, previousTurn: null);
     }
 
-    public List<Turn> Resolve(BfsSolutionMode mode = BfsSolutionMode.FirstWin)
+    /// <summary>
+    /// Solves the board using the specified mode.
+    /// <see cref="BfsSolutionMode">Mode</see> affects the search interruption and results.
+    /// </summary>
+    /// <returns>The turns matching the solution mode.</returns>
+    public List<Turn> Solve(BfsSolutionMode mode = BfsSolutionMode.FirstWin)
     {
-        throw new NotImplementedException();
+        List<Turn> topTurns = [InitialTurn];
+
+        List<Turn> result = new();
+        if (ShouldAddResult(InitialTurn.State, mode))
+            result.Add(InitialTurn);
+
+        bool interruptSolution = false;
+        while (!interruptSolution)
+        {
+            Turn[] baseTurns = topTurns.Where(t => t.State == BoardState.Solvable).ToArray();
+            topTurns.Clear();
+
+            if (baseTurns.Length == 0)
+                interruptSolution = true;
+
+            bool interruptDepth = false;
+
+            foreach (Turn baseTurn in baseTurns)
+            {
+                Direction[] effectiveDirections = GetEffectiveDirections(baseTurn);
+
+                foreach (Direction direction in effectiveDirections)
+                {
+                    Board nextBoard = baseTurn.Board.Move(direction);
+                    Turn turn = CreateTurn(nextBoard, direction, baseTurn);
+
+                    topTurns.Add(turn);
+
+                    if (ShouldAddResult(turn.State, mode))
+                        result.Add(turn);
+
+                    if (ShouldInterruptDepth(turn.State, mode))
+                        interruptDepth = true;
+
+                    if (ShouldInterruptSolution(turn.State, mode))
+                        interruptSolution = true;
+
+                    if (interruptDepth)
+                        break;
+                }
+
+                if (interruptDepth)
+                    break;
+            }
+        }
+
+        return result;
     }
 
-    private Turn CreateTurn(Board board)
+    private Turn CreateTurn(Board board, Direction? direction, Turn? previousTurn)
     {
+        if(previousTurn != null && direction == null)
+            throw new ArgumentException("Direction cannot be null if previousTurn is not null.");
+
         BoardState state = GetBoardState(board);
+        int turnNumber = previousTurn == null ? 0 : previousTurn.Number + 1;
 
-        return new Turn(0, board, state);
+        return new Turn(turnNumber, board, state, direction, previousTurn);
     }
 
     private BoardState GetBoardState(Board board)
@@ -76,4 +131,48 @@ public class BfsSolver
 
         return false;
     }
+
+    private Direction[] GetEffectiveDirections(Turn baseTurn)
+    {
+        Direction[] directions =
+        [
+            Direction.Top,
+            Direction.Bottom,
+            Direction.Left,
+            Direction.Right
+        ];
+
+        List<Direction> effectiveDirections = new();
+
+        foreach (Direction direction in directions)
+        {
+            if (baseTurn.Board.AreBallsAlignedTo(direction))
+                continue;
+
+            if (direction == baseTurn.Direction)
+                continue;
+
+            if (direction.IsOpposite(baseTurn.Direction))
+            {
+                if (baseTurn.Previous != null && baseTurn.Previous.Board.AreBallsAlignedTo(direction))
+                    continue;
+            }
+
+            effectiveDirections.Add(direction);
+        }
+
+        return effectiveDirections.ToArray();
+    }
+
+    private bool ShouldAddResult(BoardState turnState, BfsSolutionMode mode)
+        => turnState != BoardState.Solvable 
+        && (turnState == BoardState.Win || mode == BfsSolutionMode.All);
+
+    private bool ShouldInterruptDepth(BoardState turnState, BfsSolutionMode mode)
+        => turnState == BoardState.Win
+        && mode == BfsSolutionMode.FirstWin;
+
+    private bool ShouldInterruptSolution(BoardState turnState, BfsSolutionMode mode)
+        => turnState == BoardState.Win
+        && (mode == BfsSolutionMode.FirstWin || mode == BfsSolutionMode.IncludeWinsOnSameDepth);
 }

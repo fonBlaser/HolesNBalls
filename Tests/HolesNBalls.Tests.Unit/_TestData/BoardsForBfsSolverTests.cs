@@ -152,4 +152,21 @@ public static class BoardsForBfsSolverTests
                 new() { Number = 7, X = 2, Y = 1 }, new() { Number = 8, X = 2, Y = 3 }, new() { Number = 9, X = 2, Y = 5 }
             }
         };
+
+
+    public static Board WinnableAndLosableBoard_WithOneBallTwoHoles =>
+        new()
+        {
+            Width = 3,
+            Height = 3,
+            Holes = new List<Hole>
+            {
+                new() { Number = 0, X = 0, Y = 0 },
+                new() { Number = 1, X = 2, Y = 2 }
+            },
+            Balls = new List<Ball>
+            {
+                new() { Number = 0, X = 1, Y = 1 }
+            }
+        };
 }

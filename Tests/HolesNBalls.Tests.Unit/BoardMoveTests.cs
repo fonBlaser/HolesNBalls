@@ -12,11 +12,11 @@ public class BoardMoveTests
     }
 
     [Theory]
-    [InlineData(MoveDirection.Top, 1, 0)]
-    [InlineData(MoveDirection.Bottom, 1, 2)]
-    [InlineData(MoveDirection.Left, 0, 1)]
-    [InlineData(MoveDirection.Right, 2, 1)]
-    public void BoardWithOneBallCenter_Move_UpdatesBallPosition(MoveDirection direction, int updatedX, int updatedY)
+    [InlineData(Direction.Top, 1, 0)]
+    [InlineData(Direction.Bottom, 1, 2)]
+    [InlineData(Direction.Left, 0, 1)]
+    [InlineData(Direction.Right, 2, 1)]
+    public void BoardWithOneBallCenter_Move_UpdatesBallPosition(Direction direction, int updatedX, int updatedY)
     {
         Board board = _TestData.BoardsForMoveTests.SimpleBoard_3x3_HoleLeftTop_BallCenter;
         Ball sourceBall = board.Balls.Single();
@@ -37,7 +37,7 @@ public class BoardMoveTests
         Board board = _TestData.BoardsForMoveTests.SimpleBoard_3x3_HoleLeftTop_BallCenter;
         Ball sourceBall = board.Balls.Single();
 
-        Board updatedBoard = board.Move(MoveDirection.Top).Move(MoveDirection.Left);
+        Board updatedBoard = board.Move(Direction.Top).Move(Direction.Left);
 
         Assert.NotEqual(updatedBoard, board);
         Assert.Empty(updatedBoard.Balls);
@@ -47,16 +47,16 @@ public class BoardMoveTests
     }
 
     [Theory]
-    [InlineData(MoveDirection.Top, MoveDirection.Left, 0, 2, 0, 2)] // Top left corner
-    [InlineData(MoveDirection.Left, MoveDirection.Top, 0, 2, 0, 2)] // Top left corner
-    [InlineData(MoveDirection.Bottom, MoveDirection.Left, 0, 2, 4, 6)] // Bottom left corner
-    [InlineData(MoveDirection.Left, MoveDirection.Bottom, 0, 2, 4, 6)] // Bottom left corner
-    [InlineData(MoveDirection.Top, MoveDirection.Right, 4, 6, 0, 2)] // Top right corner
-    [InlineData(MoveDirection.Right, MoveDirection.Top, 4, 6, 0, 2)] // Top right corner
-    [InlineData(MoveDirection.Bottom, MoveDirection.Right, 4, 6, 4, 6)] // Bottom right corner
-    [InlineData(MoveDirection.Right, MoveDirection.Bottom, 4, 6, 4, 6)] // Bottom right corner
-    public void Board7x7With9BallsWithSpaces_WithinTwoMoves_HasBallsStack3x3InCorner(MoveDirection first,
-        MoveDirection second, int minX, int maxX, int minY, int maxY)
+    [InlineData(Direction.Top, Direction.Left, 0, 2, 0, 2)] // Top left corner
+    [InlineData(Direction.Left, Direction.Top, 0, 2, 0, 2)] // Top left corner
+    [InlineData(Direction.Bottom, Direction.Left, 0, 2, 4, 6)] // Bottom left corner
+    [InlineData(Direction.Left, Direction.Bottom, 0, 2, 4, 6)] // Bottom left corner
+    [InlineData(Direction.Top, Direction.Right, 4, 6, 0, 2)] // Top right corner
+    [InlineData(Direction.Right, Direction.Top, 4, 6, 0, 2)] // Top right corner
+    [InlineData(Direction.Bottom, Direction.Right, 4, 6, 4, 6)] // Bottom right corner
+    [InlineData(Direction.Right, Direction.Bottom, 4, 6, 4, 6)] // Bottom right corner
+    public void Board7x7With9BallsWithSpaces_WithinTwoMoves_HasBallsStack3x3InCorner(Direction first,
+        Direction second, int minX, int maxX, int minY, int maxY)
     {
         Board board = _TestData.BoardsForMoveTests.Board_7x7_With9BallsWithSpaces_WithoutHoles;
         int ballsCount = board.Balls.Count;
@@ -90,7 +90,7 @@ public class BoardMoveTests
 
 
         //First move
-        Board boardAfterMoveTop = board.Move(MoveDirection.Top);
+        Board boardAfterMoveTop = board.Move(Direction.Top);
 
         //Two drops there and three balls left
         Assert.Equal(2, boardAfterMoveTop.Drops.Count);
@@ -111,7 +111,7 @@ public class BoardMoveTests
 
 
         //Second move
-        Board boardAfterMoveBottom = boardAfterMoveTop.Move(MoveDirection.Bottom);
+        Board boardAfterMoveBottom = boardAfterMoveTop.Move(Direction.Bottom);
 
         //Four drops there and one ball left
         Assert.Equal(4, boardAfterMoveBottom.Drops.Count);
@@ -147,7 +147,7 @@ public class BoardMoveTests
 
 
         //First move
-        Board boardAfterMoveLeft = board.Move(MoveDirection.Left);
+        Board boardAfterMoveLeft = board.Move(Direction.Left);
 
         //Two drops there and three balls left
         Assert.Equal(2, boardAfterMoveLeft.Drops.Count);
@@ -168,7 +168,7 @@ public class BoardMoveTests
 
 
         //Second move
-        Board boardAfterMoveRight = boardAfterMoveLeft.Move(MoveDirection.Right);
+        Board boardAfterMoveRight = boardAfterMoveLeft.Move(Direction.Right);
 
         //Four drops there and one ball left
         Assert.Equal(4, boardAfterMoveRight.Drops.Count);
@@ -193,10 +193,10 @@ public class BoardMoveTests
     {
         Board board = _TestData.BoardsForMoveTests.Board_3x5_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
 
-        Board resultBoard = board.Move(MoveDirection.Top)
-                                 .Move(MoveDirection.Bottom)
-                                 .Move(MoveDirection.Left)
-                                 .Move(MoveDirection.Top);
+        Board resultBoard = board.Move(Direction.Top)
+                                 .Move(Direction.Bottom)
+                                 .Move(Direction.Left)
+                                 .Move(Direction.Top);
 
         Assert.NotEqual(resultBoard, board);
 
@@ -209,10 +209,10 @@ public class BoardMoveTests
     {
         Board board = _TestData.BoardsForMoveTests.Board_5x3_With5Balls_WithHolesBetweenBorderBalls_AndFreeMiddleBall;
 
-        Board resultBoard = board.Move(MoveDirection.Left)
-                                 .Move(MoveDirection.Right)
-                                 .Move(MoveDirection.Top)
-                                 .Move(MoveDirection.Left);
+        Board resultBoard = board.Move(Direction.Left)
+                                 .Move(Direction.Right)
+                                 .Move(Direction.Top)
+                                 .Move(Direction.Left);
 
         Assert.NotEqual(resultBoard, board);
 
