@@ -36,7 +36,7 @@ try
     sw.Stop();
 
     Console.WriteLine($"Solved in {sw.ElapsedMilliseconds} ms.\n\n");
-    if (finalSolutionTurns.Count == 0)
+    if (finalSolutionTurns.Count == 0 || finalSolutionTurns.Single().State == BoardState.Unsolvable)
     {
         Console.WriteLine("No solutions found.");
     }
