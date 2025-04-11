@@ -20,7 +20,7 @@ public class BoardValidator
     public void ValidateDimensions(int width, int height)
     {
         if(width <= 0 || height <= 0)
-            throw new BoardValidationException($"Board Width anBd Height should be positive. " +
+            throw new BoardValidationException($"Board Width and Height should be positive. " +
                                                $"Currents are W:{width} and H:{height})");
 
         int cellsCount = width * height;
@@ -96,20 +96,34 @@ public class BoardValidator
         }
     }
 
-    private void ValidateBoardObjectBoundsInCollection(int boardWidth, int boardHeight, IEnumerable<BoardObject> collection, string collectionName)
+    private void ValidateBoardObjectBoundsInCollection(int width, int height, IEnumerable<Coordinates> collection, string collectionName)
     {
-        IReadOnlyCollection<BoardObject> outerHoles = collection.Where(obj => obj.X < 0
-                                                                           || obj.X >= boardWidth
-                                                                           || obj.Y < 0
-                                                                           || obj.Y >= boardHeight)
-            .ToList();
+        IReadOnlyCollection<Coordinates> outerCoords = collection.Where(coords => AreCoordsOutsideOfBoard(coords, width, height))
+                                                                 .ToList();
             
-        if (outerHoles.Any())
+        if (outerCoords.Any())
         {
-            string errorMessage = $"Holes must be within the board " +
-                                  $"(X:[0,{boardWidth - 1}], Y:[0,{boardHeight - 1}]). " +
-                                  $"Wrong ones: {string.Join(',', outerHoles)}";
+            string errorMessage = $"{collectionName} must be within the board " +
+                                  $"(X:[0,{width - 1}], Y:[0,{height - 1}]). " +
+                                  $"Wrong ones: {string.Join(',', outerCoords)}";
             throw new BoardValidationException(errorMessage);
         }
     }
+
+    public void ValidateCoordinatesBounds(Coordinates coordinates, int width, int height, string objectTypeName)
+    {
+        if (AreCoordsOutsideOfBoard(coordinates, width, height))
+        {
+            string errorMessage = $"{objectTypeName} coordinates must be within the board " +
+                                  $"(X:[0,{width - 1}], Y:[0,{height - 1}]). " +
+                                  $"Current: {coordinates}";
+            throw new BoardValidationException(errorMessage);
+        }
+    }
+
+    private bool AreCoordsOutsideOfBoard(Coordinates coordinates, int boardWidth, int boardHeight)
+        => coordinates.X < 0
+        || coordinates.X >= boardWidth
+        || coordinates.Y < 0
+        || coordinates.Y >= boardHeight;
 }

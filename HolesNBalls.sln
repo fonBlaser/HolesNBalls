@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CA9914A6
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HolesNBalls.Tests.Unit", "Tests\HolesNBalls.Tests.Unit\HolesNBalls.Tests.Unit.csproj", "{4EBA7EEC-78B0-4290-85FA-7922E5BEA2EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HolesNBalls.Cli", "Source\HolesNBalls.Cli\HolesNBalls.Cli.csproj", "{CE977413-4BA4-4DB9-AFA8-07C40978BDBB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{4EBA7EEC-78B0-4290-85FA-7922E5BEA2EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EBA7EEC-78B0-4290-85FA-7922E5BEA2EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4EBA7EEC-78B0-4290-85FA-7922E5BEA2EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE977413-4BA4-4DB9-AFA8-07C40978BDBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE977413-4BA4-4DB9-AFA8-07C40978BDBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE977413-4BA4-4DB9-AFA8-07C40978BDBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE977413-4BA4-4DB9-AFA8-07C40978BDBB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +38,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{27A7D21F-27E1-4DEC-BA14-6974ED21E5B5} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{4EBA7EEC-78B0-4290-85FA-7922E5BEA2EB} = {CA9914A6-3FA5-494D-8C98-0E3FEBC674F5}
+		{CE977413-4BA4-4DB9-AFA8-07C40978BDBB} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D6439DC4-FF50-4774-BF0F-920266EB671D}

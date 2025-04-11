@@ -34,4 +34,7 @@ public class Turn
         sequence.Reverse();
         return sequence.ToArray();
     }
+
+    public override string ToString()
+        => $"[{State.ToString()}] {string.Join(" -> ", GetMoveSequence().Select(m => m.ToString()))}";
 }
