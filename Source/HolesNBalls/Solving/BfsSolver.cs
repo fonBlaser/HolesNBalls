@@ -4,12 +4,21 @@ namespace HolesNBalls.Solving;
 
 public class BfsSolver
 {
+    private List<Turn> _topTurns = null;
+
     public Turn InitialTurn { get; }
+    public IReadOnlyCollection<Turn> TopDepthTurns => _topTurns;
 
     public BfsSolver(Board board)
     {
         new BoardValidator().ValidateBoard(board);
         InitialTurn = CreateTurn(board);
+        _topTurns = [InitialTurn];
+    }
+
+    public List<Turn> Resolve(BfsSolutionMode mode = BfsSolutionMode.FirstWin)
+    {
+        throw new NotImplementedException();
     }
 
     private Turn CreateTurn(Board board)
@@ -36,26 +45,17 @@ public class BfsSolver
 
     private bool GetIsBoardSolvable(Board board)
     {
-        int[] ballXs = board.Balls.Select(b => b.X).Distinct().ToArray();
-        int[] ballYs = board.Balls.Select(b => b.Y).Distinct().ToArray();
         int[] holeXs = board.Holes.Select(h => h.X).Distinct().ToArray();
         int[] holeYs = board.Holes.Select(h => h.Y).Distinct().ToArray();
-
-        bool hasBorderedBall = ballXs.Contains(0) || ballXs.Contains(board.Width - 1)
-                            || ballYs.Contains(0) || ballYs.Contains(board.Height - 1);
 
         bool hasBorderedHole = holeXs.Contains(0) || holeXs.Contains(board.Width - 1)
                             || holeYs.Contains(0) || holeYs.Contains(board.Height - 1);
 
-        if (hasBorderedBall && hasBorderedHole)
+        if (hasBorderedHole)
             return true;
 
-
-        bool anyBallHasHoleOnSameLine = ballXs.Any(bx => holeXs.Contains(bx)) 
-                                     || ballYs.Any(by => holeYs.Contains(by));
-
-        if (anyBallHasHoleOnSameLine)
-            return true;
+        int[] ballXs = board.Balls.Select(b => b.X).Distinct().ToArray();
+        int[] ballYs = board.Balls.Select(b => b.Y).Distinct().ToArray();
 
         int stackX = ballYs.Length;
         int stackY = ballXs.Length;
@@ -68,20 +68,12 @@ public class BfsSolver
         if (someStackLargerThanGap)
             return true;
 
+        bool anyBallHasHoleOnSameLine = ballXs.Any(bx => holeXs.Contains(bx)) 
+                                     || ballYs.Any(by => holeYs.Contains(by));
+
+        if (anyBallHasHoleOnSameLine)
+            return true;
+
         return false;
-    }
-}
-
-public class Turn
-{
-    public int Number { get; }
-    public Board Board { get; }
-    public BoardState State { get; }
-
-    public Turn(int number, Board board, BoardState state)
-    {
-        Number = number;
-        Board = board;
-        State = state;
     }
 }

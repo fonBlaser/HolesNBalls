@@ -29,6 +29,7 @@ public class BfsSolverTests
             BfsSolver solver = new(board);
 
             Assert.NotNull(solver.InitialTurn);
+            Assert.Null(solver.InitialTurn.Previous);
             Assert.Equal(0, solver.InitialTurn.Number);
             Assert.Equal(BoardState.Solvable, solver.InitialTurn.State);
         });
@@ -50,6 +51,7 @@ public class BfsSolverTests
             BfsSolver solver = new(board);
 
             Assert.NotNull(solver.InitialTurn);
+            Assert.Null(solver.InitialTurn.Previous);
             Assert.Equal(0, solver.InitialTurn.Number);
             Assert.Equal(BoardState.Unsolvable, solver.InitialTurn.State);
         });
