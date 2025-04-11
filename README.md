@@ -1,6 +1,14 @@
 # HolesNBalls
 The 'Holes and Balls' game with a console application and simple solver (breadth-first search).
 
+## Game rules
+The game is played on an N × N board filled with uniquely numbered Balls and Holes placed at specific spots.
+### How to Play
+- You can move the entire board in one of four directions: Up, Down, Left, or Right.
+- When you move the board, all Balls slide in that direction until they hit something—either a wall or another Ball.
+- The goal is to get each Ball into the Hole with the matching number.
+- If a Ball goes into the wrong Hole, you lose the game.
+
 ## Solution structure
 
 - [Source](./Source)
